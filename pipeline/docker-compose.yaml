@@ -50,11 +50,11 @@ services:
 
 
   notebook:
-    image: jupyter/scipy-notebook
+    image: johnkurian/ds-notebook:v5
     depends_on:
       - mongo
     ports:
-      - "8888:8888"
+      - "443:8888"
 
 
 #networks:
