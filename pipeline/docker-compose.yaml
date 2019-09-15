@@ -55,6 +55,10 @@ services:
       - mongo
     ports:
       - "443:8888"
+    deploy:
+      resources:
+        reservations:
+          memory: 3000M
 
 
 #networks:
