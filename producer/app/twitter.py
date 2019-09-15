@@ -3,8 +3,6 @@ from tweepy import OAuthHandler
 from tweepy import Stream
 from kafka import SimpleProducer, KafkaClient
 import time
-import joblib
-import json
 
 
 access_token = "68979886-IzdibLmYAx39y8PLNWA7kLPKl2rTDlLPCnf557I45"
@@ -26,11 +24,7 @@ stream_keywords = ["tsunami", "natural disasters", "volcano", "tornado",
 class StdOutListener(StreamListener):
     def on_data(self, data):
         data = data.encode('utf-8')
-        data = json.loads(data)
-        classifier = joblib.load('class.pkl')
-        predict = classifier.predict([data['text']])
-        data['relevance'] = predict[0]
-        producer.send_messages("pizza", data)
+        producer.send_messages("tweetstream", data)
 
         return True
     def on_error(self, status):
