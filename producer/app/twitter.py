@@ -3,18 +3,35 @@ from tweepy import OAuthHandler
 from tweepy import Stream
 from kafka import SimpleProducer, KafkaClient
 import time
+import joblib
+import json
+
 
 access_token = "68979886-IzdibLmYAx39y8PLNWA7kLPKl2rTDlLPCnf557I45"
 access_token_secret =  "tjVsF4mx4vS9JO0hPcS7b8qoP7oIZK1A8nX0aMwhkNEDG"
 consumer_key =  "jjSz1RE4ftTNmqB1XuUTM22Fc"
 consumer_secret =  "5SNWrhQStzMp3UDwVY7YGuEofQ4QOBBP4rOo4hGnhKpdFQoVi9"
 
+stream_keywords = ["tsunami", "natural disasters", "volcano", "tornado",
+                   "avalanche", "earthquake", "blizzard", "drought", "woodland fire",
+                   "tremor", "dust storm", "magma", "twister", "windstorm", "heat wave",
+                   "cyclone", "forest fire", "flood", "fire", "hailstorm", "lava", "lightning",
+                   "high-pressure", "hail", "hurricane", "seismic", "erosion", "whirlpool",
+                   "richter scale", "whirlwind", "cloud", "thunderstorm", "gale", "blackout",
+                   "gust", "volt", "snowstorm", "rainstorm", "storm", "nimbus", "violent storm",
+                   "sandstorm", "casualty", "beaufort scale", "fatal", "fatality", "cumulonimbus",
+                   "destruction", "cataclysm", "damage", "wind scale", "permafrost", "disaster"]
+
 
 class StdOutListener(StreamListener):
     def on_data(self, data):
-        producer.send_messages("pizza", data.encode('utf-8'))
-        # print('tweet received')
-#         print(data)
+        data = data.encode('utf-8')
+        data = json.loads(data)
+        classifier = joblib.load('class.pkl')
+        predict = classifier.predict([data['text']])
+        data['relevance'] = predict[0]
+        producer.send_messages("pizza", data)
+
         return True
     def on_error(self, status):
         print (status)
@@ -31,7 +48,7 @@ while success == False:
         auth = OAuthHandler(consumer_key, consumer_secret)
         auth.set_access_token(access_token, access_token_secret)
         stream = Stream(auth, l)
-        stream.filter(track="pizza")
+        stream.filter(track=stream_keywords)
         success = True
     except:
         print("producer error")

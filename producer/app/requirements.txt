@@ -1,3 +1,5 @@
 tweepy
 kafka-python
 configparser
+scikit-learn
+joblib
